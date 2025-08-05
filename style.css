@@ -81,6 +81,30 @@ body {
   margin-bottom: 10px;
 }
 
+#controlGuide {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #00ff41;
+  margin-top: 20px;
+  max-width: 400px;
+  text-align: left;
+}
+
+#controlGuide h3 {
+  font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+  color: #00ff41;
+  margin-bottom: 10px;
+}
+
+#controlGuide ul {
+  list-style: none;
+  padding-left: 0;
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  line-height: 1.5;
+  color: #ffffff;
+}
+
 @keyframes glow {
   from { text-shadow: 0 0 20px #00ff41; }
   to { text-shadow: 0 0 30px #00ff41, 0 0 40px #00ff41; }
@@ -204,13 +228,13 @@ button:active {
 }
 
 .control-btn {
-  width: clamp(50px, 12vw, 70px);
-  height: clamp(50px, 12vw, 70px);
+  width: clamp(60px, 15vw, 90px);
+  height: clamp(60px, 15vw, 90px);
   border-radius: 50%;
   background: rgba(0, 255, 65, 0.2);
   border: 2px solid #00ff41;
   color: #00ff41;
-  font-size: clamp(0.7rem, 2vw, 1rem);
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
   font-weight: bold;
   display: flex;
   align-items: center;
