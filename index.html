@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CODE BREAKERS - コードブレイカーズ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="gameContainer">
+        <div id="titleScreen" class="screen">
+            <h1>CODE BREAKERS</h1>
+            <h2>コードブレイカーズ</h2>
+            <p>サイバリオンの街を救え！</p>
+            <button id="startButton">ゲーム開始</button>
+            <div class="story">
+                <p>近未来都市「サイバリオン」が<br>謎の勢力「バグフォース」に侵略された！</p>
+                <p>君はコードブレイカーズの一員として<br>街を救う任務に就く！</p>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="screen hidden">
+            <div id="gameUI">
+                <div id="stageInfo">
+                    <span id="stageName">ステージ1: バイナリー街道</span>
+                </div>
+                <div id="playerInfo">
+                    <div id="hpBar">
+                        <span>HP: </span>
+                        <div class="bar">
+                            <div id="hpFill"></div>
+                        </div>
+                    </div>
+                    <div id="weaponInfo">
+                        <span id="currentWeapon">武器: ピストル</span>
+                    </div>
+                </div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div id="controls">
+                <div class="control-group">
+                    <button class="control-btn" id="leftBtn">←</button>
+                    <button class="control-btn" id="rightBtn">→</button>
+                    <button class="control-btn" id="jumpBtn">ジャンプ</button>
+                </div>
+                <div class="control-group">
+                    <button class="control-btn" id="attackBtn">攻撃</button>
+                    <button class="control-btn" id="weaponBtn">武器変更</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameOverScreen" class="screen hidden">
+            <h2>ゲームオーバー</h2>
+            <p>サイバリオンの街は...</p>
+            <button id="restartButton">もう一度挑戦</button>
+            <button id="titleButton">タイトルに戻る</button>
+        </div>
+
+        <div id="stageClearScreen" class="screen hidden">
+            <h2>ステージクリア！</h2>
+            <p id="clearMessage">ビットマスターを倒した！</p>
+            <p id="weaponGet">新武器：ビットブラスターを獲得！</p>
+            <button id="nextStageButton">次のステージへ</button>
+        </div>
+
+        <div id="gameCompleteScreen" class="screen hidden">
+            <h2>ゲームクリア！</h2>
+            <p>おめでとう！<br>サイバリオンの街を救った！</p>
+            <p>君こそ真のコードブレイカーだ！</p>
+            <button id="playAgainButton">最初から遊ぶ</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
