@@ -394,10 +394,12 @@ function setupEventListeners() {
     // キーボード操作
     document.addEventListener('keydown', (e) => {
         keys[e.key.toLowerCase()] = true;
-        
+
         if (gameState.gameRunning) {
             switch(e.key.toLowerCase()) {
                 case ' ':
+                case 'arrowup':
+                case 'w':
                     e.preventDefault();
                     player.jump();
                     break;
@@ -407,6 +409,12 @@ function setupEventListeners() {
                     break;
                 case 'c':
                     switchWeapon();
+                    break;
+                case 'p':
+                    if (!e.repeat) {
+                        e.preventDefault();
+                        togglePause();
+                    }
                     break;
             }
         }
@@ -424,6 +432,15 @@ function setupEventListeners() {
     document.getElementById('playAgainButton').addEventListener('click', () => {
         gameState.reset();
         showScreen('titleScreen');
+    });
+
+    const pauseBtn = document.getElementById('pauseButton');
+    pauseBtn.addEventListener('click', () => {
+        if (gameState.gameRunning) togglePause();
+    });
+    pauseBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState.gameRunning) togglePause();
     });
     
     // タッチコントロール
@@ -481,6 +498,7 @@ function showScreen(screenId) {
 function startGame() {
     gameState.reset();
     gameState.gameRunning = true;
+    gameState.gamePaused = false;
     
     // プレイヤー初期化
     player = new Player(100, canvas.height - 200);
@@ -490,6 +508,7 @@ function startGame() {
     
     // UI更新
     updateUI();
+    document.getElementById('pauseButton').textContent = '一時停止';
     
     // ゲーム画面表示
     showScreen('gameScreen');
@@ -540,6 +559,12 @@ function switchWeapon() {
         gameState.currentWeapon = (gameState.currentWeapon + 1) % gameState.unlockedWeapons.length;
         updateWeaponDisplay();
     }
+}
+
+function togglePause() {
+    gameState.gamePaused = !gameState.gamePaused;
+    const btn = document.getElementById('pauseButton');
+    btn.textContent = gameState.gamePaused ? '再開' : '一時停止';
 }
 
 function gameLoop(currentTime = 0) {
@@ -709,6 +734,8 @@ function nextStage() {
     // 新ステージ初期化
     initStage(gameState.currentStage);
     updateUI();
+    gameState.gamePaused = false;
+    document.getElementById('pauseButton').textContent = '一時停止';
     
     // ゲーム再開
     gameState.gameRunning = true;
