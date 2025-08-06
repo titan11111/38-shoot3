@@ -215,12 +215,17 @@ button:active {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.2);
   padding: 8px 12px;
   border-radius: 5px;
-  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #000000;
+  text-shadow: -1px -1px 0 rgba(255,255,255,0.8),
+               1px -1px 0 rgba(255,255,255,0.8),
+               -1px 1px 0 rgba(255,255,255,0.8),
+               1px 1px 0 rgba(255,255,255,0.8);
   font-family: 'Press Start 2P', monospace;
-  font-size: 12px;
+  font-size: 14px;
   z-index: 100;
 }
 
@@ -251,11 +256,11 @@ button:active {
 }
 
 .enemy-icon {
-  background: #ff4444;
+  background: #3399ff;
 }
 
 .bullet-icon {
-  background: #ffff55;
+  background: #ff4444;
 }
 
 /* タッチコントロール */
@@ -278,11 +283,11 @@ button:active {
   width: clamp(60px, 15vw, 90px);
   height: clamp(60px, 15vw, 90px);
   border-radius: 50%;
-  background: rgba(0, 255, 65, 0.2);
-  border: 2px solid #00ff41;
-  color: #00ff41;
-  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
-  font-weight: bold;
+  background: rgba(173, 216, 230, 0.25);
+  border: 2px solid rgba(173, 216, 230, 0.6);
+  color: #e0e0e0;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: normal;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,7 +296,7 @@ button:active {
 }
 
 .control-btn:active {
-  background: rgba(0, 255, 65, 0.4);
+  background: rgba(173, 216, 230, 0.5);
   transform: scale(0.9);
 }
 

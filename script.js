@@ -188,12 +188,17 @@ class Bullet {
             ctx.fillStyle = this.color;
             ctx.fillRect(p.x, p.y, this.width, this.height);
         });
+        ctx.save();
         ctx.globalAlpha = 1;
         ctx.shadowColor = this.color;
         ctx.shadowBlur = 10;
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
     }
 
     isOffScreen() {
@@ -219,15 +224,15 @@ class Enemy {
         this.jumpTimer = 0;
         this.damage = 10;
         this.velocityY = 0;
-        this.color = '#ff4444';
+        this.color = '#3366ff';
 
         if (type === 'jumper') {
-            this.color = '#ff00ff';
+            this.color = '#6699ff';
         } else if (type === 'shooter') {
-            this.color = '#00aaff';
+            this.color = '#3355ff';
             this.speed = 0;
         } else if (type === 'runner') {
-            this.color = '#ffaa00';
+            this.color = '#33ccff';
             this.speed = 3;
         } else if (type === 'boss') {
             this.width = 64;
@@ -332,9 +337,17 @@ class Enemy {
 
     draw(ctx) {
         // 敵本体
+        ctx.save();
+        ctx.shadowColor = this.color;
+        ctx.shadowBlur = 8;
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
-        
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
+
         // HPバー（ボスのみ）
         if (this.type === 'boss') {
             const barWidth = this.width;
@@ -373,13 +386,16 @@ class EnemyBullet {
     }
 
     draw(ctx) {
-        ctx.fillStyle = '#ff0000';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        
+        ctx.save();
         ctx.shadowColor = '#ff0000';
         ctx.shadowBlur = 8;
+        ctx.fillStyle = '#ff0000';
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.shadowBlur = 0;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.restore();
     }
 
     isOffScreen() {
