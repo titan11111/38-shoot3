@@ -100,8 +100,8 @@ class Player {
             gameState.playerHP -= amount;
             this.invulnerable = true;
             this.invulnerableTimer = 60; // 1秒無敵
-            updateHPBar();
-            
+            updateHUD();
+
             if (gameState.playerHP <= 0) {
                 gameState.playerHP = 0;
                 gameOver();
@@ -151,16 +151,17 @@ class Bullet {
         this.weaponType = weaponType;
         this.speed = 12;
         this.damage = 10;
-        this.width = 8;
-        this.height = 4;
+        this.width = 6;
+        this.height = 6;
+        this.trail = [];
         
         // 武器タイプ別設定
         switch(weaponType) {
             case 0: // ピストル
-                this.color = '#ffff00';
+                this.color = '#ffff55';
                 break;
             case 1: // ビットブラスター
-                this.color = '#00ffff';
+                this.color = '#55ffff';
                 this.speed = 15;
                 break;
             case 2: // クラッシュランチャー
@@ -176,15 +177,21 @@ class Bullet {
 
     update() {
         this.x += this.speed * this.direction;
+        this.trail.push({x: this.x, y: this.y, alpha: 1});
+        this.trail.forEach(p => p.alpha -= 0.1);
+        this.trail = this.trail.filter(p => p.alpha > 0);
     }
 
     draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        
-        // 光るエフェクト
+        this.trail.forEach(p => {
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = this.color;
+            ctx.fillRect(p.x, p.y, this.width, this.height);
+        });
+        ctx.globalAlpha = 1;
         ctx.shadowColor = this.color;
         ctx.shadowBlur = 10;
+        ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.shadowBlur = 0;
     }
@@ -209,46 +216,90 @@ class Enemy {
         this.animFrame = 0;
         this.animTimer = 0;
         this.shootTimer = 0;
+        this.jumpTimer = 0;
         this.damage = 10;
-        
-        if (type === 'boss') {
+        this.velocityY = 0;
+        this.color = '#ff4444';
+
+        if (type === 'jumper') {
+            this.color = '#ff00ff';
+        } else if (type === 'shooter') {
+            this.color = '#00aaff';
+            this.speed = 0;
+        } else if (type === 'runner') {
+            this.color = '#ffaa00';
+            this.speed = 3;
+        } else if (type === 'boss') {
             this.width = 64;
             this.height = 64;
             this.hp = 100;
             this.maxHP = 100;
             this.damage = 20;
             this.speed = 2;
+            this.color = '#ff0000';
         }
     }
 
     update() {
-        // 基本移動
-        this.x += this.speed * this.direction;
-        
-        // 画面端で反転
-        if (this.x <= 0 || this.x >= canvas.width - this.width) {
-            this.direction *= -1;
+        // 重力
+        this.velocityY += 0.8;
+        this.y += this.velocityY;
+        if (this.y > canvas.height - 100 - this.height) {
+            this.y = canvas.height - 100 - this.height;
+            this.velocityY = 0;
         }
-        
-        // プレイヤーとの衝突判定
+
+        switch(this.type) {
+            case 'jumper':
+                this.jumpTimer++;
+                if (this.jumpTimer > 120) {
+                    this.velocityY = -15;
+                    this.jumpTimer = 0;
+                }
+                this.x += this.speed * this.direction;
+                if (this.x <= 0 || this.x >= canvas.width - this.width) {
+                    this.direction *= -1;
+                }
+                break;
+            case 'shooter':
+                this.shootTimer++;
+                if (this.shootTimer > 90) {
+                    this.shoot();
+                    this.shootTimer = 0;
+                }
+                break;
+            case 'runner':
+                this.direction = player.x < this.x ? -1 : 1;
+                this.x += this.speed * this.direction;
+                this.x = Math.max(0, Math.min(this.x, canvas.width - this.width));
+                break;
+            case 'boss':
+                this.x += this.speed * this.direction;
+                if (this.x <= 0 || this.x >= canvas.width - this.width) {
+                    this.direction *= -1;
+                }
+                this.shootTimer++;
+                if (this.shootTimer > 90) {
+                    this.shoot();
+                    this.shootTimer = 0;
+                }
+                break;
+            default:
+                this.x += this.speed * this.direction;
+                if (this.x <= 0 || this.x >= canvas.width - this.width) {
+                    this.direction *= -1;
+                }
+        }
+
         if (this.checkCollision(player)) {
             player.takeDamage(this.damage);
         }
-        
+
         // アニメーション
         this.animTimer++;
         if (this.animTimer > 20) {
             this.animFrame = (this.animFrame + 1) % 2;
             this.animTimer = 0;
-        }
-        
-        // ボスの特殊行動
-        if (this.type === 'boss') {
-            this.shootTimer++;
-            if (this.shootTimer > 90) { // 1.5秒に1回攻撃
-                this.shoot();
-                this.shootTimer = 0;
-            }
         }
     }
 
@@ -281,7 +332,7 @@ class Enemy {
 
     draw(ctx) {
         // 敵本体
-        ctx.fillStyle = this.type === 'boss' ? '#ff0000' : '#ff4444';
+        ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
         
         // HPバー（ボスのみ）
@@ -353,6 +404,7 @@ let bullets = [];
 let enemyBullets = [];
 let keys = {};
 let lastTime = 0;
+let hudHpFill, enemyCountEl, bulletCountEl;
 
 // ステージ情報
 const stageData = [
@@ -376,10 +428,14 @@ function init() {
     
     // ゲーム状態初期化
     gameState = new GameState();
-    
+
     // イベントリスナー設定
     setupEventListeners();
-    
+
+    hudHpFill = document.getElementById('hudHpFill');
+    enemyCountEl = document.getElementById('enemyCount');
+    bulletCountEl = document.getElementById('bulletCount');
+
     // タイトル画面表示
     showScreen('titleScreen');
 }
@@ -507,10 +563,12 @@ function initStage(stageNum) {
     document.getElementById('stageName').textContent = stageData[stageNum - 1].name;
     
     // 敵配置
+    const types = ['jumper', 'shooter', 'runner'];
     for (let i = 0; i < 3 + stageNum; i++) {
         const x = 200 + i * 150;
         const y = canvas.height - 150;
-        enemies.push(new Enemy(x, y, 'basic'));
+        const type = types[Math.floor(Math.random() * types.length)];
+        enemies.push(new Enemy(x, y, type));
     }
     
     // ボス追加
@@ -520,14 +578,8 @@ function initStage(stageNum) {
 }
 
 function updateUI() {
-    updateHPBar();
+    updateHUD();
     updateWeaponDisplay();
-}
-
-function updateHPBar() {
-    const hpFill = document.getElementById('hpFill');
-    const hpPercent = (gameState.playerHP / gameState.maxHP) * 100;
-    hpFill.style.width = hpPercent + '%';
 }
 
 function updateWeaponDisplay() {
@@ -540,6 +592,15 @@ function switchWeapon() {
         gameState.currentWeapon = (gameState.currentWeapon + 1) % gameState.unlockedWeapons.length;
         updateWeaponDisplay();
     }
+}
+
+function updateHUD() {
+    const hpPercent = (gameState.playerHP / gameState.maxHP) * 100;
+    const hpFill = document.getElementById('hpFill');
+    if (hpFill) hpFill.style.width = hpPercent + '%';
+    if (hudHpFill) hudHpFill.style.width = hpPercent + '%';
+    if (enemyCountEl) enemyCountEl.textContent = enemies.length;
+    if (bulletCountEl) bulletCountEl.textContent = bullets.length;
 }
 
 function gameLoop(currentTime = 0) {
@@ -577,12 +638,14 @@ function update() {
     
     // 衝突判定
     checkCollisions();
-    
+
     // 不要オブジェクト削除
     bullets = bullets.filter(bullet => !bullet.isOffScreen());
     enemyBullets = enemyBullets.filter(bullet => !bullet.isOffScreen());
     enemies = enemies.filter(enemy => enemy.hp > 0);
-    
+
+    updateHUD();
+
     // ステージクリア判定
     if (enemies.length === 0) {
         stageClear();
@@ -645,9 +708,8 @@ function draw() {
     enemies.forEach(enemy => enemy.draw(ctx));
     bullets.forEach(bullet => bullet.draw(ctx));
     enemyBullets.forEach(bullet => bullet.draw(ctx));
-    
-    // デバッグ情報
-    drawDebugInfo();
+
+    // drawDebugInfo();
 }
 
 function drawStars() {
