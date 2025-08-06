@@ -387,7 +387,7 @@ function init() {
 function resizeCanvas() {
     const container = document.getElementById('gameContainer');
     canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+    canvas.height = container.clientHeight * 0.8;
 }
 
 function setupEventListeners() {
