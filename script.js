@@ -493,36 +493,42 @@ function setupTouchControls() {
     const attackBtn = document.getElementById('attackBtn');
     const weaponBtn = document.getElementById('weaponBtn');
     
-    // タッチ開始・終了イベント
-    leftBtn.addEventListener('touchstart', (e) => {
+    // ポインタイベント
+    leftBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         keys['arrowleft'] = true;
     });
-    leftBtn.addEventListener('touchend', (e) => {
+    leftBtn.addEventListener('pointerup', (e) => {
         e.preventDefault();
         keys['arrowleft'] = false;
     });
-    
-    rightBtn.addEventListener('touchstart', (e) => {
+    leftBtn.addEventListener('pointerout', () => {
+        keys['arrowleft'] = false;
+    });
+
+    rightBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         keys['arrowright'] = true;
     });
-    rightBtn.addEventListener('touchend', (e) => {
+    rightBtn.addEventListener('pointerup', (e) => {
         e.preventDefault();
         keys['arrowright'] = false;
     });
-    
-    jumpBtn.addEventListener('touchstart', (e) => {
+    rightBtn.addEventListener('pointerout', () => {
+        keys['arrowright'] = false;
+    });
+
+    jumpBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) player.jump();
     });
-    
-    attackBtn.addEventListener('touchstart', (e) => {
+
+    attackBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) player.shoot();
     });
-    
-    weaponBtn.addEventListener('touchstart', (e) => {
+
+    weaponBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) switchWeapon();
     });

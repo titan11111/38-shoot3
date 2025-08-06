@@ -262,11 +262,23 @@ button:active {
 #controls {
   position: absolute;
   bottom: 20px;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+#weaponControl {
+  position: absolute;
   left: 50%;
   transform: translateX(-50%);
+}
+
+#rightControls {
+  position: absolute;
+  right: 20px;
   display: flex;
-  gap: 20px;
-  z-index: 100;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .control-group {
@@ -335,20 +347,23 @@ button:active {
   
   #controls {
       bottom: 10px;
-      gap: 15px;
   }
-  
+
+  #rightControls {
+      gap: 8px;
+  }
+
   .control-group {
       gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
-  #controls {
-      flex-direction: column;
-      gap: 10px;
+  #rightControls {
+      right: 10px;
+      gap: 6px;
   }
-  
+
   .control-group {
       justify-content: center;
   }
@@ -363,6 +378,6 @@ button:active {
   
   #controls {
       bottom: 5px;
-      transform: translateX(-50%) scale(0.9);
+      transform: scale(0.9);
   }
 }
