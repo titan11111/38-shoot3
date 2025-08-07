@@ -420,6 +420,7 @@ let bullets = [];
 let enemyBullets = [];
 let keys = {};
 let lastTime = 0;
+let fireInterval;
 let hudHpFill, enemyCountEl, bulletCountEl;
 const activeTouches = new Set();
 
@@ -516,51 +517,73 @@ function setupEventListeners() {
 }
 
 function setupTouchControls() {
-    const leftBtn = document.getElementById('left');
-    const rightBtn = document.getElementById('right');
-    const jumpBtn = document.getElementById('jump');
-    const attackBtn = document.getElementById('attack');
-    const reloadBtn = document.getElementById('reload');
-    const switchBtn = document.getElementById('switchWeapon');
+    const leftBtn = document.getElementById('btn-left');
+    const rightBtn = document.getElementById('btn-right');
+    const fireBtn = document.getElementById('btn-fire');
+    const switchBtn = document.getElementById('btn-switch');
+    const jumpBtn = document.getElementById('btn-jump');
 
-    // タッチ開始・終了イベント
     leftBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        keys['arrowleft'] = true;
+        moveLeft();
     });
     leftBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
-        keys['arrowleft'] = false;
+        stopMoveLeft();
     });
 
     rightBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        keys['arrowright'] = true;
+        moveRight();
     });
     rightBtn.addEventListener('touchend', (e) => {
         e.preventDefault();
-        keys['arrowright'] = false;
-    });
-
-    jumpBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState.gameRunning) player.jump();
-    });
-
-    attackBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState.gameRunning) player.shoot();
-    });
-
-    reloadBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        if (gameState.gameRunning) reloadWeapon();
+        stopMoveRight();
     });
 
     switchBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) switchWeapon();
     });
+
+    fireBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        fire();
+        fireInterval = setInterval(fire, 200);
+    });
+    fireBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        clearInterval(fireInterval);
+    });
+
+    jumpBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        jump();
+    });
+}
+
+function moveLeft() {
+    keys['arrowleft'] = true;
+}
+
+function stopMoveLeft() {
+    keys['arrowleft'] = false;
+}
+
+function moveRight() {
+    keys['arrowright'] = true;
+}
+
+function stopMoveRight() {
+    keys['arrowright'] = false;
+}
+
+function fire() {
+    if (gameState.gameRunning) player.shoot();
+}
+
+function jump() {
+    if (gameState.gameRunning) player.jump();
 }
 
 function showScreen(screenId) {

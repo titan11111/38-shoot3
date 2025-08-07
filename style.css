@@ -264,28 +264,27 @@ button:active {
 }
 
 /* タッチコントロール */
-#controls-left,
-#controls-right {
+#left-controls,
+#right-controls {
   position: fixed;
   bottom: 20px;
-  width: 40%;
   display: flex;
-  justify-content: space-around;
+  gap: 10px;
   z-index: 1000;
 }
 
-#controls-left {
-  left: 0;
+#left-controls {
+  left: 20px;
 }
 
-#controls-right {
-  right: 0;
+#right-controls {
+  right: 20px;
 }
 
-#controls-left button,
-#controls-right button {
-  width: 80px;
-  height: 80px;
+#left-controls button,
+#right-controls button {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   font-size: 1.2rem;
   background-color: #222;
@@ -294,8 +293,8 @@ button:active {
   padding: 0;
 }
 
-#controls-left button:active,
-#controls-right button:active {
+#left-controls button:active,
+#right-controls button:active {
   background-color: #555;
   transform: scale(0.95);
 }
