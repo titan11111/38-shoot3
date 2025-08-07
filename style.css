@@ -264,40 +264,40 @@ button:active {
 }
 
 /* タッチコントロール */
-#controls {
-  position: absolute;
+#controls-left,
+#controls-right {
+  position: fixed;
   bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 40%;
   display: flex;
-  gap: 20px;
-  z-index: 100;
+  justify-content: space-around;
+  z-index: 1000;
 }
 
-.control-group {
-  display: flex;
-  gap: 10px;
+#controls-left {
+  left: 0;
 }
 
-.control-btn {
-  width: clamp(60px, 15vw, 90px);
-  height: clamp(60px, 15vw, 90px);
+#controls-right {
+  right: 0;
+}
+
+#controls-left button,
+#controls-right button {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: rgba(173, 216, 230, 0.25);
-  border: 2px solid rgba(173, 216, 230, 0.6);
-  color: #e0e0e0;
-  font-size: clamp(1.2rem, 3vw, 1.6rem);
-  font-weight: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
-  user-select: none;
+  font-size: 1.2rem;
+  background-color: #222;
+  color: white;
+  border: 2px solid lime;
+  padding: 0;
 }
 
-.control-btn:active {
-  background: rgba(173, 216, 230, 0.5);
-  transform: scale(0.9);
+#controls-left button:active,
+#controls-right button:active {
+  background-color: #555;
+  transform: scale(0.95);
 }
 
 /* クリア・ゲームオーバー画面 */
@@ -338,25 +338,9 @@ button:active {
       gap: 15px;
   }
   
-  #controls {
-      bottom: 10px;
-      gap: 15px;
-  }
-  
-  .control-group {
-      gap: 8px;
-  }
 }
 
 @media (max-width: 480px) {
-  #controls {
-      flex-direction: column;
-      gap: 10px;
-  }
-  
-  .control-group {
-      justify-content: center;
-  }
 }
 
 /* 縦画面での調整 */
@@ -366,8 +350,4 @@ button:active {
       padding: 15px;
   }
   
-  #controls {
-      bottom: 5px;
-      transform: translateX(-50%) scale(0.9);
-  }
 }

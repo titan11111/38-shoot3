@@ -421,6 +421,7 @@ let enemyBullets = [];
 let keys = {};
 let lastTime = 0;
 let hudHpFill, enemyCountEl, bulletCountEl;
+const activeTouches = new Set();
 
 // ステージ情報
 const stageData = [
@@ -437,10 +438,22 @@ const stageData = [
 function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
-    
+
     // キャンバスサイズ設定
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    canvas.addEventListener('touchstart', (e) => {
+        for (let touch of e.touches) {
+            activeTouches.add(touch.identifier);
+        }
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+        for (let touch of e.changedTouches) {
+            activeTouches.delete(touch.identifier);
+        }
+    });
     
     // ゲーム状態初期化
     gameState = new GameState();
@@ -503,12 +516,13 @@ function setupEventListeners() {
 }
 
 function setupTouchControls() {
-    const leftBtn = document.getElementById('leftBtn');
-    const rightBtn = document.getElementById('rightBtn');
-    const jumpBtn = document.getElementById('jumpBtn');
-    const attackBtn = document.getElementById('attackBtn');
-    const weaponBtn = document.getElementById('weaponBtn');
-    
+    const leftBtn = document.getElementById('left');
+    const rightBtn = document.getElementById('right');
+    const jumpBtn = document.getElementById('jump');
+    const attackBtn = document.getElementById('attack');
+    const reloadBtn = document.getElementById('reload');
+    const switchBtn = document.getElementById('switchWeapon');
+
     // タッチ開始・終了イベント
     leftBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
@@ -518,7 +532,7 @@ function setupTouchControls() {
         e.preventDefault();
         keys['arrowleft'] = false;
     });
-    
+
     rightBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         keys['arrowright'] = true;
@@ -527,18 +541,23 @@ function setupTouchControls() {
         e.preventDefault();
         keys['arrowright'] = false;
     });
-    
+
     jumpBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) player.jump();
     });
-    
+
     attackBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) player.shoot();
     });
-    
-    weaponBtn.addEventListener('touchstart', (e) => {
+
+    reloadBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState.gameRunning) reloadWeapon();
+    });
+
+    switchBtn.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) switchWeapon();
     });
@@ -555,7 +574,7 @@ function startGame() {
     gameState.gameRunning = true;
     
     // プレイヤー初期化
-    player = new Player(100, canvas.height - 200);
+    player = new Player(100, canvas.height * 0.5);
     
     // ステージ初期化
     initStage(gameState.currentStage);
@@ -601,6 +620,10 @@ function updateUI() {
 function updateWeaponDisplay() {
     const weaponName = gameState.unlockedWeapons[gameState.currentWeapon];
     document.getElementById('currentWeapon').textContent = `武器: ${weaponName}`;
+}
+
+function reloadWeapon() {
+    // TODO: implement reloading
 }
 
 function switchWeapon() {
@@ -780,7 +803,7 @@ function nextStage() {
     
     // プレイヤー位置リセット
     player.x = 100;
-    player.y = canvas.height - 200;
+    player.y = canvas.height * 0.5;
     player.velocityX = 0;
     player.velocityY = 0;
     
