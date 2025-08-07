@@ -445,16 +445,22 @@ function init() {
     window.addEventListener('resize', resizeCanvas);
 
     canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
         for (let touch of e.touches) {
             activeTouches.add(touch.identifier);
         }
-    });
+    }, { passive: false });
 
     canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
         for (let touch of e.changedTouches) {
             activeTouches.delete(touch.identifier);
         }
-    });
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+    }, { passive: false });
     
     // ゲーム状態初期化
     gameState = new GameState();
