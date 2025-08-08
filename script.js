@@ -6,7 +6,7 @@ class GameState {
         this.playerHP = 100;
         this.maxHP = 100;
         this.currentWeapon = 0;
-        this.unlockedWeapons = ['ピストル'];
+        this.unlockedWeapons = ['ピストル', 'マシンガン', 'ショットガン', 'レーザーガン', 'ロケットランチャー'];
         this.gameRunning = false;
         this.gamePaused = false;
     }
@@ -15,7 +15,7 @@ class GameState {
         this.currentStage = 1;
         this.playerHP = 100;
         this.currentWeapon = 0;
-        this.unlockedWeapons = ['ピストル'];
+        this.unlockedWeapons = ['ピストル', 'マシンガン', 'ショットガン', 'レーザーガン', 'ロケットランチャー'];
         this.gameRunning = false;
         this.gamePaused = false;
     }
@@ -112,7 +112,13 @@ class Player {
     shoot() {
         const bulletX = this.x + (this.facing > 0 ? this.width : 0);
         const bulletY = this.y + this.height / 2;
-        bullets.push(new Bullet(bulletX, bulletY, this.facing, gameState.currentWeapon));
+        if (gameState.currentWeapon === 2) {
+            for (let i = -1; i <= 1; i++) {
+                bullets.push(new Bullet(bulletX, bulletY + i * 5, this.facing, gameState.currentWeapon));
+            }
+        } else {
+            bullets.push(new Bullet(bulletX, bulletY, this.facing, gameState.currentWeapon));
+        }
     }
 
     draw(ctx) {
@@ -160,15 +166,27 @@ class Bullet {
             case 0: // ピストル
                 this.color = '#ffff55';
                 break;
-            case 1: // ビットブラスター
+            case 1: // マシンガン
                 this.color = '#55ffff';
                 this.speed = 15;
+                this.damage = 12;
                 break;
-            case 2: // クラッシュランチャー
+            case 2: // ショットガン
                 this.color = '#ff6600';
-                this.damage = 25;
+                this.speed = 10;
+                this.damage = 8;
+                break;
+            case 3: // レーザーガン
+                this.color = '#ff00ff';
+                this.speed = 20;
+                this.damage = 15;
+                break;
+            case 4: // ロケットランチャー
+                this.color = '#ff4444';
+                this.speed = 8;
+                this.damage = 30;
                 this.width = 12;
-                this.height = 8;
+                this.height = 12;
                 break;
             default:
                 this.color = '#ffff00';
@@ -520,6 +538,22 @@ function setupEventListeners() {
     
     // タッチコントロール
     setupTouchControls();
+
+    // 武器選択メニュー
+    setupWeaponSelect();
+}
+
+function setupWeaponSelect() {
+    const menu = document.getElementById('weaponSelect');
+    if (!menu) return;
+    menu.querySelectorAll('button').forEach(btn => {
+        const index = parseInt(btn.dataset.weapon);
+        btn.addEventListener('click', () => changeWeapon(index));
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            changeWeapon(index);
+        });
+    });
 }
 
 function setupTouchControls() {
@@ -548,6 +582,10 @@ function setupTouchControls() {
     });
 
     switchBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (gameState.gameRunning) switchWeapon();
+    });
+    switchBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (gameState.gameRunning) switchWeapon();
     });
@@ -656,10 +694,14 @@ function reloadWeapon() {
 }
 
 function switchWeapon() {
-    if (gameState.unlockedWeapons.length > 1) {
-        gameState.currentWeapon = (gameState.currentWeapon + 1) % gameState.unlockedWeapons.length;
-        updateWeaponDisplay();
-    }
+    const menu = document.getElementById('weaponSelect');
+    menu.classList.toggle('hidden');
+}
+
+function changeWeapon(index) {
+    gameState.currentWeapon = index;
+    updateWeaponDisplay();
+    document.getElementById('weaponSelect').classList.add('hidden');
 }
 
 function updateHUD() {
