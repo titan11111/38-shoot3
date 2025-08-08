@@ -243,6 +243,7 @@ class Enemy {
         this.damage = 10;
         this.velocityY = 0;
         this.color = '#3366ff';
+        this.image = null;
 
         if (type === 'jumper') {
             this.color = '#6699ff';
@@ -260,6 +261,46 @@ class Enemy {
             this.damage = 20;
             this.speed = 2;
             this.color = '#ff0000';
+        }
+
+        if (type !== 'boss') {
+            const stageEnemyColorMap = {
+                1: '#3366ff',
+                2: '#00cc88',
+                3: '#ff55cc',
+                4: '#ffaa00',
+                5: '#00ffee',
+                6: '#ff3333',
+                7: '#ffffff'
+            };
+            this.color = stageEnemyColorMap[gameState.currentStage] || '#3366ff';
+
+            const stageSizeMultiplier = {
+                1: 1.0,
+                2: 1.1,
+                3: 0.9,
+                4: 1.2,
+                5: 1.0,
+                6: 1.3,
+                7: 1.5
+            };
+
+            const scale = stageSizeMultiplier[gameState.currentStage] || 1.0;
+            this.width *= scale;
+            this.height *= scale;
+
+            const stageEnemyImageMap = {
+                1: 'images/enemy_stage1.svg',
+                2: 'images/enemy_stage2.svg',
+                3: 'images/enemy_stage3.svg',
+                4: 'images/enemy_stage4.svg',
+                5: 'images/enemy_stage5.svg',
+                6: 'images/enemy_stage6.svg',
+                7: 'images/enemy_stage7.svg'
+            };
+
+            this.image = new Image();
+            this.image.src = stageEnemyImageMap[gameState.currentStage] || 'images/enemy_default.svg';
         }
     }
 
@@ -354,35 +395,36 @@ class Enemy {
     }
 
     draw(ctx) {
-        // 敵本体
-        ctx.save();
-        ctx.shadowColor = this.color;
-        ctx.shadowBlur = 8;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.shadowBlur = 0;
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(this.x, this.y, this.width, this.height);
-        ctx.restore();
+        if (this.type !== 'boss' && this.image && this.image.complete && this.image.naturalWidth !== 0) {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+        } else {
+            ctx.save();
+            ctx.shadowColor = this.color;
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.x, this.y, this.width, this.height);
+            ctx.restore();
 
-        // HPバー（ボスのみ）
-        if (this.type === 'boss') {
-            const barWidth = this.width;
-            const barHeight = 4;
-            const hpRatio = this.hp / this.maxHP;
-            
-            ctx.fillStyle = '#333333';
-            ctx.fillRect(this.x, this.y - 8, barWidth, barHeight);
-            
-            ctx.fillStyle = hpRatio > 0.5 ? '#00ff00' : hpRatio > 0.25 ? '#ffff00' : '#ff0000';
-            ctx.fillRect(this.x, this.y - 8, barWidth * hpRatio, barHeight);
+            if (this.type === 'boss') {
+                const barWidth = this.width;
+                const barHeight = 4;
+                const hpRatio = this.hp / this.maxHP;
+
+                ctx.fillStyle = '#333333';
+                ctx.fillRect(this.x, this.y - 8, barWidth, barHeight);
+
+                ctx.fillStyle = hpRatio > 0.5 ? '#00ff00' : hpRatio > 0.25 ? '#ffff00' : '#ff0000';
+                ctx.fillRect(this.x, this.y - 8, barWidth * hpRatio, barHeight);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(this.x + 4, this.y + 6, 3, 3);
+                ctx.fillRect(this.x + this.width - 7, this.y + 6, 3, 3);
+            }
         }
-        
-        // 目
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(this.x + 4, this.y + 6, 3, 3);
-        ctx.fillRect(this.x + this.width - 7, this.y + 6, 3, 3);
     }
 }
 
