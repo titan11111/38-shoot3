@@ -265,29 +265,21 @@ button:active {
 }
 
 /* タッチコントロール */
-#left-controls,
-#right-controls {
+#controls {
   position: fixed;
   bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 10px;
   z-index: 1000;
 }
 
-#left-controls {
-  left: 20px;
-}
-
-#right-controls {
-  right: 20px;
-}
-
-#left-controls button,
-#right-controls button {
+#controls button {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   background-color: #222;
   color: white;
   border: 2px solid lime;
@@ -298,8 +290,7 @@ button:active {
   justify-content: center;
 }
 
-#left-controls button:active,
-#right-controls button:active {
+#controls button:active {
   background-color: #555;
   transform: scale(0.95);
 }
