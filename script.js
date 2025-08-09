@@ -1,3 +1,39 @@
+// 簡易BGM制御
+let audioCtx;
+let bgmTimer;
+
+function startMusic() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    const notes = [261.63, 329.63, 392.0, 523.25];
+    let idx = 0;
+    bgmTimer = setInterval(() => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = notes[idx % notes.length];
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+        idx++;
+    }, 400);
+}
+
+function stopMusic() {
+    if (bgmTimer) {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+    }
+    if (audioCtx) {
+        audioCtx.suspend();
+    }
+}
+
 // ゲーム状態管理
 class GameState {
     constructor() {
@@ -569,10 +605,14 @@ function setupEventListeners() {
     // ボタン操作
     document.getElementById('startButton').addEventListener('click', startGame);
     document.getElementById('restartButton').addEventListener('click', startGame);
-    document.getElementById('titleButton').addEventListener('click', () => showScreen('titleScreen'));
+    document.getElementById('titleButton').addEventListener('click', () => {
+        stopMusic();
+        showScreen('titleScreen');
+    });
     document.getElementById('nextStageButton').addEventListener('click', nextStage);
     document.getElementById('playAgainButton').addEventListener('click', () => {
         gameState.reset();
+        stopMusic();
         showScreen('titleScreen');
     });
     
@@ -677,6 +717,7 @@ function showScreen(screenId) {
 }
 
 function startGame() {
+    stopMusic();
     gameState.reset();
     gameState.gameRunning = true;
     
@@ -691,7 +732,10 @@ function startGame() {
     
     // ゲーム画面表示
     showScreen('gameScreen');
-    
+
+    // BGM 再生
+    startMusic();
+
     // ゲームループ開始
     gameLoop();
 }
@@ -940,6 +984,7 @@ function nextStage() {
 
 function gameOver() {
     gameState.gameRunning = false;
+    stopMusic();
     showScreen('gameOverScreen');
 }
 
