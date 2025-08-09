@@ -264,16 +264,8 @@ class Enemy {
         }
 
         if (type !== 'boss') {
-            const stageEnemyColorMap = {
-                1: '#3366ff',
-                2: '#00cc88',
-                3: '#ff55cc',
-                4: '#ffaa00',
-                5: '#00ffee',
-                6: '#ff3333',
-                7: '#ffffff'
-            };
-            this.color = stageEnemyColorMap[gameState.currentStage] || '#3366ff';
+            const stageInfo = stageData[gameState.currentStage - 1] || {};
+            this.color = stageInfo.enemyColor || '#3366ff';
 
             const stageSizeMultiplier = {
                 1: 1.0,
@@ -486,13 +478,13 @@ const activeTouches = new Set();
 
 // ステージ情報
 const stageData = [
-    { name: "ステージ1: バイナリー街道", boss: "ビットマスター", weapon: "ビットブラスター" },
-    { name: "ステージ2: データ地下道", boss: "クラッシュワーム", weapon: "クラッシュランチャー" },
-    { name: "ステージ3: クラウドタワー", boss: "フォグキーパー", weapon: "フォグスプレッダー" },
-    { name: "ステージ4: ファイアウォール工場", boss: "フレアマシーン", weapon: "フレアショット" },
-    { name: "ステージ5: サイバー海峡", boss: "ハイドロコード", weapon: "ハイドロウェーブ" },
-    { name: "ステージ6: バグ廃墟", boss: "グリッチキング", weapon: "グリッチレーザー" },
-    { name: "ステージ7: 中央制御塔", boss: "エラーオメガ", weapon: null }
+    { name: "ステージ1: バイナリー街道", boss: "ビットマスター", weapon: "ビットブラスター", enemyColor: '#3366ff' },
+    { name: "ステージ2: データ地下道", boss: "クラッシュワーム", weapon: "クラッシュランチャー", enemyColor: '#00cc88' },
+    { name: "ステージ3: クラウドタワー", boss: "フォグキーパー", weapon: "フォグスプレッダー", enemyColor: '#ff55cc' },
+    { name: "ステージ4: ファイアウォール工場", boss: "フレアマシーン", weapon: "フレアショット", enemyColor: '#ffaa00' },
+    { name: "ステージ5: サイバー海峡", boss: "ハイドロコード", weapon: "ハイドロウェーブ", enemyColor: '#00ffee' },
+    { name: "ステージ6: バグ廃墟", boss: "グリッチキング", weapon: "グリッチレーザー", enemyColor: '#ff3333' },
+    { name: "ステージ7: 中央制御塔", boss: "エラーオメガ", weapon: null, enemyColor: '#ffffff' }
 ];
 
 // 初期化
@@ -545,22 +537,27 @@ function resizeCanvas() {
 function setupEventListeners() {
     // キーボード操作
     document.addEventListener('keydown', (e) => {
-        keys[e.key.toLowerCase()] = true;
-        
-        if (gameState.gameRunning) {
-            switch(e.key.toLowerCase()) {
-                case ' ':
-                    e.preventDefault();
-                    player.jump();
-                    break;
-                case 'z':
-                case 'x':
-                    player.shoot();
-                    break;
-                case 'c':
-                    switchWeapon();
-                    break;
-            }
+        const key = e.key.toLowerCase();
+        keys[key] = true;
+
+        if (!gameState.gameRunning) return;
+
+        if (key === 'c') {
+            switchWeapon();
+            return;
+        }
+
+        if (gameState.gamePaused) return;
+
+        switch(key) {
+            case ' ':
+                e.preventDefault();
+                player.jump();
+                break;
+            case 'z':
+            case 'x':
+                player.shoot();
+                break;
         }
     });
     
@@ -649,7 +646,7 @@ function setupTouchControls() {
 }
 
 function moveLeft() {
-    keys['arrowleft'] = true;
+    if (!gameState.gamePaused) keys['arrowleft'] = true;
 }
 
 function stopMoveLeft() {
@@ -657,7 +654,7 @@ function stopMoveLeft() {
 }
 
 function moveRight() {
-    keys['arrowright'] = true;
+    if (!gameState.gamePaused) keys['arrowright'] = true;
 }
 
 function stopMoveRight() {
@@ -665,11 +662,11 @@ function stopMoveRight() {
 }
 
 function fire() {
-    if (gameState.gameRunning) player.shoot();
+    if (gameState.gameRunning && !gameState.gamePaused) player.shoot();
 }
 
 function jump() {
-    if (gameState.gameRunning) player.jump();
+    if (gameState.gameRunning && !gameState.gamePaused) player.jump();
 }
 
 function showScreen(screenId) {
@@ -738,12 +735,14 @@ function reloadWeapon() {
 function switchWeapon() {
     const menu = document.getElementById('weaponSelect');
     menu.classList.toggle('hidden');
+    gameState.gamePaused = !menu.classList.contains('hidden');
 }
 
 function changeWeapon(index) {
     gameState.currentWeapon = index;
     updateWeaponDisplay();
     document.getElementById('weaponSelect').classList.add('hidden');
+    gameState.gamePaused = false;
 }
 
 function updateHUD() {
