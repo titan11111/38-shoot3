@@ -475,6 +475,7 @@ let lastTime = 0;
 let fireInterval;
 let hudHpFill, enemyCountEl, bulletCountEl;
 const activeTouches = new Set();
+let nextStageTimeout; // 次ステージへの自動移行用タイマー
 
 // ステージ情報
 const stageData = [
@@ -906,10 +907,18 @@ function stageClear() {
     } else {
         // ステージクリア画面
         showScreen('stageClearScreen');
+        // 一定時間後に自動で次のステージへ
+        nextStageTimeout = setTimeout(nextStage, 2000);
     }
 }
 
 function nextStage() {
+    // 自動移行用タイマーがある場合はクリア
+    if (nextStageTimeout) {
+        clearTimeout(nextStageTimeout);
+        nextStageTimeout = null;
+    }
+
     gameState.currentStage++;
     gameState.playerHP = gameState.maxHP; // HP全回復
     
