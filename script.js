@@ -515,13 +515,13 @@ let nextStageTimeout; // 次ステージへの自動移行用タイマー
 
 // ステージ情報
 const stageData = [
-    { name: "ステージ1: バイナリー街道", boss: "ビットマスター", weapon: "ビットブラスター", enemyColor: '#3366ff' },
-    { name: "ステージ2: データ地下道", boss: "クラッシュワーム", weapon: "クラッシュランチャー", enemyColor: '#00cc88' },
-    { name: "ステージ3: クラウドタワー", boss: "フォグキーパー", weapon: "フォグスプレッダー", enemyColor: '#ff55cc' },
-    { name: "ステージ4: ファイアウォール工場", boss: "フレアマシーン", weapon: "フレアショット", enemyColor: '#ffaa00' },
-    { name: "ステージ5: サイバー海峡", boss: "ハイドロコード", weapon: "ハイドロウェーブ", enemyColor: '#00ffee' },
-    { name: "ステージ6: バグ廃墟", boss: "グリッチキング", weapon: "グリッチレーザー", enemyColor: '#ff3333' },
-    { name: "ステージ7: 中央制御塔", boss: "エラーオメガ", weapon: null, enemyColor: '#ffffff' }
+    { name: "ステージ1: バイナリー街道", boss: "ビットマスター", weapon: "ビットブラスター", enemyColor: '#3366ff', background: ['#001122', '#003366'] },
+    { name: "ステージ2: データ地下道", boss: "クラッシュワーム", weapon: "クラッシュランチャー", enemyColor: '#00cc88', background: ['#001f00', '#003300'] },
+    { name: "ステージ3: クラウドタワー", boss: "フォグキーパー", weapon: "フォグスプレッダー", enemyColor: '#ff55cc', background: ['#110011', '#330033'] },
+    { name: "ステージ4: ファイアウォール工場", boss: "フレアマシーン", weapon: "フレアショット", enemyColor: '#ffaa00', background: ['#331100', '#663300'] },
+    { name: "ステージ5: サイバー海峡", boss: "ハイドロコード", weapon: "ハイドロウェーブ", enemyColor: '#00ffee', background: ['#001133', '#004477'] },
+    { name: "ステージ6: バグ廃墟", boss: "グリッチキング", weapon: "グリッチレーザー", enemyColor: '#ff3333', background: ['#220000', '#440000'] },
+    { name: "ステージ7: 中央制御塔", boss: "エラーオメガ", weapon: null, enemyColor: '#ffffff', background: ['#000000', '#333333'] }
 ];
 
 // 初期化
@@ -612,6 +612,8 @@ function setupEventListeners() {
     document.getElementById('nextStageButton').addEventListener('click', nextStage);
     document.getElementById('playAgainButton').addEventListener('click', () => {
         gameState.reset();
+        setupWeaponSelect();
+        updateWeaponDisplay();
         stopMusic();
         showScreen('titleScreen');
     });
@@ -626,13 +628,17 @@ function setupEventListeners() {
 function setupWeaponSelect() {
     const menu = document.getElementById('weaponSelect');
     if (!menu) return;
-    menu.querySelectorAll('button').forEach(btn => {
-        const index = parseInt(btn.dataset.weapon);
+    menu.innerHTML = '';
+    gameState.unlockedWeapons.forEach((weapon, index) => {
+        const btn = document.createElement('button');
+        btn.textContent = weapon;
+        btn.dataset.weapon = index;
         btn.addEventListener('click', () => changeWeapon(index));
         btn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             changeWeapon(index);
         });
+        menu.appendChild(btn);
     });
 }
 
@@ -719,6 +725,7 @@ function showScreen(screenId) {
 function startGame() {
     stopMusic();
     gameState.reset();
+    setupWeaponSelect();
     gameState.gameRunning = true;
     
     // プレイヤー初期化
@@ -876,14 +883,12 @@ function checkCollisions() {
 }
 
 function draw() {
-    // 背景クリア
-    ctx.fillStyle = `linear-gradient(180deg, #001122, #003366)`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // グラデーション背景
+    // ステージごとのグラデーション背景
+    const stageInfo = stageData[gameState.currentStage - 1] || {};
+    const colors = stageInfo.background || ['#001122', '#003366'];
     const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#001122');
-    gradient.addColorStop(1, '#003366');
+    gradient.addColorStop(0, colors[0]);
+    gradient.addColorStop(1, colors[1]);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -938,6 +943,14 @@ function stageClear() {
     // 武器獲得処理
     if (stageInfo.weapon && !gameState.unlockedWeapons.includes(stageInfo.weapon)) {
         gameState.unlockedWeapons.push(stageInfo.weapon);
+        if (gameState.unlockedWeapons.length > 5) {
+            gameState.unlockedWeapons.shift();
+            if (gameState.currentWeapon > 0) {
+                gameState.currentWeapon--;
+            }
+        }
+        setupWeaponSelect();
+        updateWeaponDisplay();
         document.getElementById('weaponGet').textContent = `新武器：${stageInfo.weapon}を獲得！`;
         document.getElementById('weaponGet').style.display = 'block';
     } else {
