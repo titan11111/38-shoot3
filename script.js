@@ -849,8 +849,8 @@ function update() {
 
     updateHUD();
 
-    // ステージクリア判定
-    if (enemies.length === 0) {
+    // ステージクリア判定（ボス撃破でクリア）
+    if (!enemies.some(enemy => enemy.type === 'boss')) {
         stageClear();
     }
 }
